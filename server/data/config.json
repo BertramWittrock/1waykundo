@@ -1,0 +1,109 @@
+{
+  "folderContents": [
+    {
+      "name": "BTS",
+      "type": "directory",
+      "children": [
+        {
+          "name": "TIPSY.mov",
+          "type": "video",
+          "r2Key": "KundoContent/Content/BTS/TIPSY.mov"
+        },
+        {
+          "name": "bag_energien.mov",
+          "type": "video",
+          "r2Key": "KundoContent/Content/BTS/bag_energien.MOV"
+        },
+        {
+          "name": "l3-kopi.mov",
+          "type": "video",
+          "r2Key": "KundoContent/Content/BTS/l3-kopi.mov"
+        },
+        {
+          "name": "l33-kopi.mov",
+          "type": "video",
+          "r2Key": "KundoContent/Content/BTS/l33-kopi.mov"
+        }
+      ]
+    },
+    {
+      "name": "GRAPHICS",
+      "type": "directory",
+      "children": [
+        {
+          "name": "popup.mp4",
+          "type": "video",
+          "r2Key": "KundoContent/graphics/230115_7100_MASTER_H265_1-kopi.MP4"
+        },
+        {
+          "name": "NorthFaceKundo.png",
+          "type": "image",
+          "r2Key": "KundoContent/graphics/Billede 2-13-25, 08.05.27.jpg"
+        },
+        {
+          "name": "AstridAndersen.png",
+          "type": "image",
+          "r2Key": "KundoContent/graphics/AstridAndersen.png"
+        },
+        {
+          "name": "Billede 2-13-25, 08.05.27 (2).jpg",
+          "type": "image",
+          "r2Key": "KundoContent/Content/GRAPHICS/Billede 2-13-25, 08.05.27 (2).jpg"
+        },
+        {
+          "name": "v2.png",
+          "type": "image",
+          "r2Key": "KundoContent/graphics/v2.mp4"
+        }
+      ]
+    },
+    {
+      "name": "KONCERTER",
+      "type": "directory",
+      "children": [
+        {
+          "name": "Kundo - Event - Story Nyny.mp4",
+          "type": "video",
+          "r2Key": "KundoContent/Content/KONCERTER/Kundo - Event - Story Nyny.mp4"
+        },
+        {
+          "name": "VillagexKundo_2024_v2.mp4",
+          "type": "video",
+          "r2Key": "KundoContent/Content/KONCERTER/VillagexKundo_2024_v2.mp4"
+        }
+      ]
+    },
+    {
+      "name": "Unreleased",
+      "type": "directory",
+      "children": [
+        {
+          "name": "Kundoi.FistOp.demo2-kopi.mp3",
+          "type": "audio",
+          "r2Key": "KundoContent/unreleased/Kundoi.FistOp.demo2-kopi.mp3"
+        },
+        {
+          "name": "Kundo - Fritfald.mp3",
+          "type": "audio",
+          "r2Key": "KundoContent/unreleased/Kundo - Fritfald.mp3"
+        },
+        {
+          "name": "vv minder mig om succes-kopi.wav",
+          "type": "audio",
+          "r2Key": "KundoContent/unreleased/vv minder mig om succes-kopi.wav"
+        }
+      ]
+    },
+    {
+      "name": "test",
+      "type": "directory",
+      "children": []
+    }
+  ],
+  "iconSettings": {
+    "ticketLink": "https://tix.to/Kundopresale",
+    "ticketImage": "/icons/home_icons/tickets.gif",
+    "ticketEnabled": true
+  },
+  "adminPasswordHash": "d3ef081d2ecf42b42214aac630ada178d175dcc00409d4d216a30eea88fd07a5"
+}

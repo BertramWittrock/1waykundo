@@ -1,5 +1,5 @@
 import { useMedia } from "../context/MediaContext";
-import { musicFiles } from "../data/windowsData"; // Import musicFiles
+import { useAdmin } from "../context/AdminContext";
 import { FastBackwardIcon, FastForwardIcon, PlayCircleIcon, PauseCircleIcon } from "./MediaPlayerIcons";
 
 // Helper to format time from seconds to MM:SS
@@ -22,6 +22,7 @@ export default function RetroWalkman() {
     duration, // Seconds
     seek // Function to seek to a specific time in seconds
   } = useMedia();
+  const { musicFiles } = useAdmin();
 
   const handleProgressClick = (event) => {
     if (!duration) return;

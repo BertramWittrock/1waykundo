@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useMedia } from "../context/MediaContext";
-import { musicFiles } from "../data/windowsData";
+import { useAdmin } from "../context/AdminContext";
 import MatrixWindow from "../components/MatrixWindow";
 import RetroWalkman from "../components/RetroWalkman";
 import MatrixPongWindow from "../components/MatrixPongWindow";
@@ -25,106 +25,7 @@ const DESKTOP_ICONS = [
   { id: "shop", label: "Shop", icon: "/icons/home_icons/ikon_shop.gif" },
 ];
 
-const FOLDER_CONTENTS = [
-  {
-    name: "BTS",
-    type: "directory",
-    children: [
-      {
-        name: "TIPSY.mov",
-        type: "video",
-        r2Key: "KundoContent/Content/BTS/TIPSY.mov",
-      },
-      {
-        name: "bag_energien.mov",
-        type: "video",
-        r2Key: "KundoContent/Content/BTS/bag_energien.MOV",
-      },
-      {
-        name: "l3-kopi.mov",
-        type: "video",
-        r2Key: "KundoContent/Content/BTS/l3-kopi.mov",
-      },
-      {
-        name: "l33-kopi.mov",
-        type: "video",
-        r2Key: "KundoContent/Content/BTS/l33-kopi.mov",
-      },
-    ],
-  },
-  {
-    name: "GRAPHICS",
-    type: "directory",
-    children: [
-      {
-        name: "popup.mp4",
-        type: "video",
-        r2Key: "KundoContent/graphics/230115_7100_MASTER_H265_1-kopi.MP4",
-      },
-      {
-        name: "NorthFaceKundo.png",
-        type: "image",
-        r2Key: "KundoContent/graphics/Billede 2-13-25, 08.05.27.jpg",
-      },
-      {
-        name: "AstridAndersen.png",
-        type: "image",
-        r2Key: "KundoContent/graphics/AstridAndersen.png",
-      },
-      {
-        name: "Billede 2-13-25, 08.05.27 (2).jpg",
-        type: "image",
-        r2Key:
-          "KundoContent/Content/GRAPHICS/Billede 2-13-25, 08.05.27 (2).jpg",
-      },
-      { name: "v2.png", type: "image", r2Key: "KundoContent/graphics/v2.mp4" },
-    ],
-  },
-  {
-    name: "KONCERTER",
-    type: "directory",
-    children: [
-      {
-        name: "Kundo - Event - Story Nyny.mp4",
-        type: "video",
-        r2Key: "KundoContent/Content/KONCERTER/Kundo - Event - Story Nyny.mp4",
-      },
-      {
-        name: "VillagexKundo_2024_v2.mp4",
-        type: "video",
-        r2Key: "KundoContent/Content/KONCERTER/VillagexKundo_2024_v2.mp4",
-      },
-    ],
-  },
-  {
-    name: "Unreleased",
-    type: "directory",
-    children: [
-      {
-        name: "Kundoi.FistOp.demo2-kopi.mp3",
-        type: "audio",
-        r2Key: "KundoContent/unreleased/Kundoi.FistOp.demo2-kopi.mp3",
-      },
-      {
-        name: "Kundo - Fritfald.mp3",
-        type: "audio",
-        r2Key: "KundoContent/unreleased/Kundo - Fritfald.mp3",
-      },
-      {
-        name: "vv minder mig om succes-kopi.wav",
-        type: "audio",
-        r2Key: "KundoContent/unreleased/vv minder mig om succes-kopi.wav",
-      },
-    ],
-  },
-  // {
-  //   name: 'instrumental',
-  //   type: 'directory',
-  //   children: [
-  //     { name: 'Kundo - 7100 - LIM2 Master Westerlin 24 Bit Instrumental-kopi.wav', type: 'audio', r2Key: 'KundoContent/instrumental/Kundo - 7100 - LIM2 Master Westerlin 24 Bit Instrumental-kopi.wav' }
-  //   ]
-  // }
-];
+// FOLDER_CONTENTS is now managed via AdminContext
 
 // Sample video list - you should replace these with your actual videos
 const VIDEO_LIST = [
@@ -163,6 +64,9 @@ export default function Home() {
   const navigate = useNavigate();
   const { signOut } = useClerk();
   const { user, isLoaded, isSignedIn } = useUser();
+  
+  // Get folder contents, icon settings, and music files from AdminContext
+  const { folderContents, iconSettings, musicFiles } = useAdmin();
 
   const [zIndices, setZIndices] = useState({});
   const [nextZCounter, setNextZCounter] = useState(BASE_Z_INDEX);
@@ -339,13 +243,16 @@ export default function Home() {
 
   const scheduleNextPopup = (delay) => {
     clearTimeout(popupTimerRef.current);
-    popupTimerRef.current = setTimeout(() => {
-      addWindow({
-        type: "ticket",
-        title: "TICKETS",
-        id: "ticketPopup",
-      });
-    }, delay);
+    // Only schedule popup if enabled in settings
+    if (iconSettings?.ticketEnabled !== false) {
+      popupTimerRef.current = setTimeout(() => {
+        addWindow({
+          type: "ticket",
+          title: "TICKETS",
+          id: "ticketPopup",
+        });
+      }, delay);
+    }
   };
 
   const handleCloseTicketPopup = () => {
@@ -354,9 +261,12 @@ export default function Home() {
   };
 
   useEffect(() => {
-    scheduleNextPopup(20000);
+    // Only show popup if enabled in settings
+    if (iconSettings?.ticketEnabled !== false) {
+      scheduleNextPopup(20000);
+    }
     return () => clearTimeout(popupTimerRef.current);
-  }, []);
+  }, [iconSettings?.ticketEnabled]);
 
   const handleLogout = async () => {
     try {
@@ -424,7 +334,7 @@ export default function Home() {
             return (
               <MatrixWindow key={win.id} id={win.id} {...commonProps}>
                 <FolderContents
-                  contents={FOLDER_CONTENTS}
+                  contents={folderContents}
                   path=""
                   onPlayVideo={handlePlayVideo}
                   onPlayImage={handlePlayImage}
@@ -461,10 +371,10 @@ export default function Home() {
           if (win.type === "ticket") {
             return (
               <MatrixWindow key={win.id} id={win.id} {...commonProps}>
-                <a href="https://tix.to/Kundopresale" target="_blank" >
+                <a href={iconSettings?.ticketLink || "https://tix.to/Kundopresale"} target="_blank" rel="noopener noreferrer">
                   <div className="flex justify-center items-center h-full">
                     <img
-                      src="/icons/home_icons/tickets.gif"
+                      src={iconSettings?.ticketImage || "/icons/home_icons/tickets.gif"}
                       alt="Tickets"
                       className="max-w-full max-h-full object-contain"
                     />

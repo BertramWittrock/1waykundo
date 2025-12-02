@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useMedia } from '../context/MediaContext';
-import { musicFiles } from '../data/windowsData';
+import { useAdmin } from '../context/AdminContext';
 import Draggable from 'react-draggable';
 import { FastBackwardIcon, FastForwardIcon, PlayCircleIcon, PauseCircleIcon } from "./MediaPlayerIcons";
 
@@ -25,6 +25,7 @@ const MatrixMusicPlayer = ({ title, onClose, zIndex, onBringToFront, instanceKey
     duration,
     seek
   } = useMedia();
+  const { musicFiles } = useAdmin();
   const nodeRef = useRef(null);
   const [hasBeenDragged, setHasBeenDragged] = useState(false);
 

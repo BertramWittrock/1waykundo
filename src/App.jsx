@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { MediaProvider } from './context/MediaContext';
+import { AdminProvider } from './context/AdminContext';
 import Home from './pages/home';
-import Login from './pages/login';
 import Loading from './pages/loading';
+import AdminDashboard from './pages/admin';
 
 function App() {
   const [consentGiven, setConsentGiven] = useState(false);
@@ -90,15 +91,17 @@ function App() {
   }
 
   return (
-    <MediaProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Loading />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/home" element={<Home />} />
-        </Routes>
-      </Router>
-    </MediaProvider>
+    <AdminProvider>
+      <MediaProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Loading />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Routes>
+        </Router>
+      </MediaProvider>
+    </AdminProvider>
   );
 }
 
