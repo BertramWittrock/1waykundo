@@ -296,7 +296,7 @@ const ShopifyShopNew = () => {
           playsInline
           className="max-w-[300px] max-h-[200px] md:max-h-[300px] w-full h-auto rounded-lg"
         >
-          <source src="/kundovinylgif.mp4" type="video/mp4" />
+          <source src="/vinyltrans.mov" type="video/quicktime" />
           Your browser does not support the video tag.
         </video>
       </div>
