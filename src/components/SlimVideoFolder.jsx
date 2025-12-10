@@ -1,13 +1,14 @@
 import React from 'react';
 import MatrixWindow from './MatrixWindow';
 
-const SlimVideoFolder = ({ onClose, videoList, onVideoSelect, currentVideo }) => {
+const SlimVideoFolder = ({ onClose, videoList, onVideoSelect, currentVideo, ...props }) => {
   return (
     <MatrixWindow
       title="Videos"
       onClose={onClose}
       initialPosition={{ x: 20, y: 50 }}
       className="slim-folder"
+      {...props}
     >
       <div className="w-[200px] h-[400px] bg-black p-2 overflow-y-auto">
         <div className="space-y-1">
@@ -20,7 +21,7 @@ const SlimVideoFolder = ({ onClose, videoList, onVideoSelect, currentVideo }) =>
                 ${currentVideo?.url === video.url ? 'bg-[#00ff00]/20' : 'hover:bg-[#00ff00]/10'}
               `}
             >
-              <img src="/icons/video.png" alt="video" className="w-4 h-4" />
+
               <span className="text-[#00ff00] text-sm truncate">{video.title}</span>
               {currentVideo?.url === video.url && (
                 <span className="text-[#00ff00] ml-auto">▶</span>

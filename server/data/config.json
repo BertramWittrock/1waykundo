@@ -23,6 +23,11 @@
           "name": "l33-kopi.mov",
           "type": "video",
           "r2Key": "KundoContent/Content/BTS/l33-kopi.mov"
+        },
+        {
+          "name": "Test billede ny",
+          "type": "image",
+          "r2Key": "KundoContent/Content/Screenshot 2025-12-02 at 15.14.07.png"
         }
       ]
     },
@@ -97,13 +102,141 @@
     {
       "name": "test",
       "type": "directory",
-      "children": []
+      "children": [
+        {
+          "name": "Billede test",
+          "type": "image",
+          "r2Key": "KundoContent/Content/Screenshot 2025-12-02 at 15.14.07.png"
+        }
+      ]
     }
   ],
   "iconSettings": {
     "ticketLink": "https://tix.to/Kundopresale",
     "ticketImage": "/icons/home_icons/tickets.gif",
-    "ticketEnabled": true
+    "ticketEnabled": false
   },
-  "adminPasswordHash": "d3ef081d2ecf42b42214aac630ada178d175dcc00409d4d216a30eea88fd07a5"
+  "adminPasswordHash": "d3ef081d2ecf42b42214aac630ada178d175dcc00409d4d216a30eea88fd07a5",
+  "musicFiles": [
+    {
+      "id": 1,
+      "title": "1WAY (Intro)",
+      "artist": "Kundo",
+      "duration": "0:32",
+      "url": "/music/24/1WAY (Intro).mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 2,
+      "title": "Tomrum",
+      "artist": "Kundo",
+      "duration": "2:36",
+      "url": "/music/24/Tomrum.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 3,
+      "title": "24",
+      "artist": "Kundo",
+      "duration": "2:52",
+      "url": "/music/24/24.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 4,
+      "title": "Skandaløst",
+      "artist": "Kundo",
+      "duration": "2:37",
+      "url": "/music/24/Skandaløst.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 5,
+      "title": "Hvem Har Stedet",
+      "artist": "Kundo",
+      "duration": "3:15",
+      "url": "/music/24/Hvem Har Stedet - Kundo.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 6,
+      "title": "Gollum",
+      "artist": "Kundo",
+      "duration": "2:58",
+      "url": "/music/24/Gollum.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 7,
+      "title": "Kan Ik Mærke Mig Selv (Interlude)",
+      "artist": "Kundo",
+      "duration": "0:48",
+      "url": "/music/24/Kan Ik Mærke Mig Selv (Interlude).mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 8,
+      "title": "Hold Min Hånd",
+      "artist": "Kundo",
+      "duration": "3:22",
+      "url": "/music/24/Hold Min Hånd.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 9,
+      "title": "02:34",
+      "artist": "Kundo",
+      "duration": "2:58",
+      "url": "/music/24/02_34.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 10,
+      "title": "Decimaler",
+      "artist": "Kundo",
+      "duration": "2:31",
+      "url": "/music/24/Decimaler.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 11,
+      "title": "Nye Problemer",
+      "artist": "Kundo",
+      "duration": "3:02",
+      "url": "/music/24/Nye Problemer.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 12,
+      "title": "Går Den Så Går Den",
+      "artist": "Kundo",
+      "duration": "2:35",
+      "url": "/music/24/Går Den Så Går Den.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 13,
+      "title": "Keem",
+      "artist": "Kundo",
+      "duration": "3:15",
+      "url": "/music/24/Keem.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 14,
+      "title": "Alt Igen",
+      "artist": "Kundo",
+      "duration": "3:52",
+      "url": "/music/24/Alt Igen.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    },
+    {
+      "id": 15,
+      "title": "Op & Ned",
+      "artist": "Kundo",
+      "duration": "2:46",
+      "url": "/music/24/Op & Ned.mp3",
+      "coverR2Key": "KundoContent/24.jpg"
+    }
+  ]
 }

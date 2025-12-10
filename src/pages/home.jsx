@@ -6,7 +6,7 @@ import { useAdmin } from "../context/AdminContext";
 import MatrixWindow from "../components/MatrixWindow";
 import RetroWalkman from "../components/RetroWalkman";
 import MatrixPongWindow from "../components/MatrixPongWindow";
-import TVOverlay from "../components/TVOverlay";
+import SlimVideoFolder from "../components/SlimVideoFolder";
 import MatrixMusicPlayer from "../components/MatrixMusicPlayer";
 import MatrixVideoPlayer from "../components/MatrixVideoPlayer";
 import MatrixImagePlayer from "../components/MatrixImagePlayer";
@@ -56,7 +56,7 @@ const BASE_Z_INDEX = 10;
 export default function Home() {
   const [activeIcon, setActiveIcon] = useState(null);
   const [openWindows, setOpenWindows] = useState([]);
-  const [showTVOverlay, setShowTVOverlay] = useState(false);
+
   const [activeVideo, setActiveVideo] = useState({ url: null, title: null });
   const [activeImage, setActiveImage] = useState({ url: null, title: null });
   const [activeAudio, setActiveAudio] = useState({ url: null, title: null });
@@ -169,14 +169,7 @@ export default function Home() {
     } else if (iconId === "pingpong") {
       addWindow({ type: "game", title: "Matrix Pong" });
     } else if (iconId === "dvd") {
-      setShowTVOverlay(true);
-      const icons = document.querySelectorAll(".desktop-icons, .retro-walkman");
-      icons.forEach((icon) => {
-        icon.style.visibility = "hidden";
-      });
-      if (isPlaying) {
-        togglePlay();
-      }
+      addWindow({ type: "dvdFolder", title: "DVD Menu" });
     } else if (iconId === "cd") {
       addWindow({
         type: "musicPlayer",
@@ -424,6 +417,16 @@ export default function Home() {
               </MatrixWindow>
             );
           }
+        if (win.type === "dvdFolder") {
+            return (
+              <SlimVideoFolder
+                key={win.id}
+                {...commonProps}
+                videoList={VIDEO_LIST}
+                onVideoSelect={(video) => handlePlayVideo(video.url, video.title)}
+              />
+            );
+          }
           return null;
         })}
 
@@ -449,19 +452,7 @@ export default function Home() {
           />
         </button>
 
-        <TVOverlay
-          isVisible={showTVOverlay}
-          onClose={() => {
-            setShowTVOverlay(false);
-            const icons = document.querySelectorAll(
-              ".desktop-icons, .retro-walkman"
-            );
-            icons.forEach((icon) => {
-              icon.style.visibility = "visible";
-            });
-          }}
-          videoList={VIDEO_LIST}
-        />
+
       </div>
 
       <style>{`
