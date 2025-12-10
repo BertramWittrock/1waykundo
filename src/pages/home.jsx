@@ -11,6 +11,8 @@ import MatrixMusicPlayer from "../components/MatrixMusicPlayer";
 import MatrixVideoPlayer from "../components/MatrixVideoPlayer";
 import MatrixImagePlayer from "../components/MatrixImagePlayer";
 import MatrixAudioPlayer from "../components/MatrixAudioPlayer";
+import ShopifyShop from "../components/ShopifyShop";
+import ShopifyButtonDesktop from "../components/ShopifyButtonDesktop";
 
 const DESKTOP_ICONS = [
   { id: "dvd", label: "DVD", icon: "/icons/home_icons/ikon_dvd.gif" },
@@ -380,15 +382,7 @@ export default function Home() {
             return (
               <MatrixWindow key={win.id} id={win.id} {...commonProps}>
                 <div className="flex flex-col justify-center items-center h-full text-[#00ff00] text-xl font-bold">
-                  <p className="animate-pulse opacity-30">SHOP OPENS SOON!</p>
-                  <p className="animate-pulse opacity-40">SHOP OPENS SOON!</p>
-                  <p className="animate-pulse opacity-60">SHOP OPENS SOON!</p>
-                  <p className="animate-pulse opacity-80">SHOP OPENS SOON!</p>
-                  <p className="animate-pulse">SHOP OPENS SOON!</p>
-                  <p className="animate-pulse opacity-80">SHOP OPENS SOON!</p>
-                  <p className="animate-pulse opacity-60">SHOP OPENS SOON!</p>
-                  <p className="animate-pulse opacity-40">SHOP OPENS SOON!</p>
-                  <p className="animate-pulse opacity-30">SHOP OPENS SOON!</p>
+                  {isMobile ? <ShopifyShop /> : <ShopifyButtonDesktop />}
                 </div>
               </MatrixWindow>
             );
