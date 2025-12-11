@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 const ShopifyShopNew = () => {
   const shopifyComponentRef = useRef(null);
   const shopifyClientRef = useRef(null);
+  const shopifyUIRef = useRef(null);
   const nodeId = 'product-component-1765199249216';
   const isInitializedRef = useRef(false);
   const [shopifyButtonReady, setShopifyButtonReady] = useState(false);
@@ -36,6 +37,9 @@ const ShopifyShopNew = () => {
           if (isInitializedRef.current) {
             return;
           }
+
+          // Store UI reference for cart operations
+          shopifyUIRef.current = ui;
 
           const node = document.getElementById(nodeId);
           
@@ -352,10 +356,77 @@ const ShopifyShopNew = () => {
           onClick={async () => {
             if (shopifyButtonReady && shopifyClientRef.current) {
               try {
+                // Function to find and click cart toggle
+                const openCart = () => {
+                  // Try multiple selectors and methods
+                  const selectors = [
+                    '.shopify-buy__cart-toggle',
+                    '[data-shopify-buy-toggle]',
+                    '.shopify-buy__btn--cart-toggle',
+                    '[aria-label*="cart" i]',
+                    '[aria-label*="Cart" i]',
+                    'button[class*="cart"]',
+                    '[class*="cart-toggle"]',
+                    '[id*="cart-toggle"]',
+                    '[id*="cartToggle"]'
+                  ];
+                  
+                  // Search in main document
+                  for (const selector of selectors) {
+                    const element = document.querySelector(selector);
+                    if (element && element.offsetParent !== null) { // Check if visible
+                      element.click();
+                      return true;
+                    }
+                  }
+                  
+                  // Search in all iframes
+                  const iframes = document.querySelectorAll('iframe');
+                  for (const iframe of iframes) {
+                    try {
+                      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                      for (const selector of selectors) {
+                        const element = iframeDoc?.querySelector(selector);
+                        if (element && element.offsetParent !== null) {
+                          element.click();
+                          return true;
+                        }
+                      }
+                    } catch {
+                      // Cross-origin, try postMessage
+                      iframe.contentWindow?.postMessage({ type: 'shopify-buy-cart-toggle', action: 'open' }, '*');
+                    }
+                  }
+                  
+                  return false;
+                };
+                
                 // Try to find and click the Shopify button first
                 const shopifyButton = document.querySelector(`#${nodeId} .shopify-buy__btn, #${nodeId} .shopify-buy__btn-wrapper button, #${nodeId} button`);
                 if (shopifyButton) {
+                  // Create a more realistic click event
+                  const clickEvent = new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                  });
+                  shopifyButton.dispatchEvent(clickEvent);
+                  
+                  // Also try regular click
                   shopifyButton.click();
+                  
+                  // Try to open cart multiple times with increasing delays
+                  const tryOpenCart = (attempt = 0) => {
+                    if (attempt < 5) {
+                      setTimeout(() => {
+                        if (!openCart()) {
+                          tryOpenCart(attempt + 1);
+                        }
+                      }, 200 + (attempt * 100));
+                    }
+                  };
+                  
+                  tryOpenCart();
                   return;
                 }
 
@@ -371,10 +442,28 @@ const ShopifyShopNew = () => {
                     const iframeButton = iframeDoc?.querySelector('.shopify-buy__btn, button');
                     if (iframeButton) {
                       iframeButton.click();
+                      
+                      // Try to open cart
+                      const tryOpenCart = (attempt = 0) => {
+                        if (attempt < 5) {
+                          setTimeout(() => {
+                            if (!openCart()) {
+                              tryOpenCart(attempt + 1);
+                            }
+                          }, 200 + (attempt * 100));
+                        }
+                      };
+                      
+                      tryOpenCart();
                     }
                   } catch {
                     // Cross-origin restriction, use postMessage
                     console.log('Using postMessage to trigger button');
+                    
+                    // Try to open cart anyway
+                    setTimeout(() => {
+                      openCart();
+                    }, 500);
                   }
                 }
               } catch (error) {
