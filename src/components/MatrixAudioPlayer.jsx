@@ -129,7 +129,11 @@ const MatrixAudioPlayer = ({ title, onClose, audioUrl, zIndex, onBringToFront, i
             onMouseDown={(e) => {
               e.stopPropagation();
             }}
-            className="bg-[#003300] hover:bg-[#004400] text-[#00ff00] border border-[#00ff00]/50 font-mono py-1 px-3 rounded text-sm transition-colors duration-150"
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            className="bg-[#003300] hover:bg-[#004400] text-[#00ff00] border border-[#00ff00]/50 font-mono h-8 sm:h-auto min-w-[32px] sm:min-w-0 flex items-center justify-center py-1 px-3 rounded text-sm transition-colors duration-150"
           >
             ×
           </button>
