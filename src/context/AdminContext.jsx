@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 const AdminContext = createContext(null);
 
 // API base URL - change this to your production URL when deploying
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
 // Default folder contents (fallback if API is unavailable)
 const DEFAULT_FOLDER_CONTENTS = [
@@ -52,7 +52,17 @@ const DEFAULT_ICON_SETTINGS = {
   ticketLink: "https://tix.to/Kundopresale",
   ticketImage: "/icons/home_icons/tickets.gif",
   ticketEnabled: true,
+  topIconLink: "",
 };
+
+// Default DVD videos
+const DEFAULT_DVD_VIDEOS = [
+  { title: "KUNDO FINAL", url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/dvd/KUNDO_FINAL_COMPRESSED_H264.mp4" },
+  { title: "FLOW MASTER 16:9", url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/dvd/220512_FLOW_MASTER_16-9.mp4" },
+  { title: "Frihed Feed Post", url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/dvd/Frihed Feed Post.mp4" },
+  { title: "MIN PROMO", url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/min_promo2.mp4" },
+  { title: "NorthFace", url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/northface2.mp4" },
+];
 
 // Default music files (CD player songs)
 const DEFAULT_MUSIC_FILES = [
@@ -80,6 +90,7 @@ export const AdminProvider = ({ children }) => {
   const [folderContents, setFolderContents] = useState(DEFAULT_FOLDER_CONTENTS);
   const [iconSettings, setIconSettings] = useState(DEFAULT_ICON_SETTINGS);
   const [musicFiles, setMusicFiles] = useState(DEFAULT_MUSIC_FILES);
+  const [dvdVideos, setDvdVideos] = useState(DEFAULT_DVD_VIDEOS);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [authToken, setAuthToken] = useState(null);
@@ -129,6 +140,7 @@ export const AdminProvider = ({ children }) => {
           setFolderContents(result.data.folderContents || DEFAULT_FOLDER_CONTENTS);
           setIconSettings(result.data.iconSettings || DEFAULT_ICON_SETTINGS);
           setMusicFiles(result.data.musicFiles || DEFAULT_MUSIC_FILES);
+          setDvdVideos(result.data.dvdVideos || DEFAULT_DVD_VIDEOS);
         } else {
           // API unavailable, use defaults
           console.warn('API unavailable, using default config');
@@ -277,6 +289,24 @@ export const AdminProvider = ({ children }) => {
     return true;
   };
 
+  // Save DVD videos to server
+  const saveDvdVideos = async (newDvdVideos) => {
+    // Optimistically update local state
+    setDvdVideos(newDvdVideos);
+
+    const result = await apiCall('/api/admin/dvd-videos', {
+      method: 'PUT',
+      body: JSON.stringify({ dvdVideos: newDvdVideos }),
+    });
+
+    if (!result.success) {
+      console.error('Failed to save DVD videos:', result.error);
+      return false;
+    }
+
+    return true;
+  };
+
   // Add a new song
   const addSong = async (song) => {
     const newId = Math.max(...musicFiles.map(file => file.id), 0) + 1;
@@ -370,6 +400,7 @@ export const AdminProvider = ({ children }) => {
       setFolderContents(result.data.folderContents);
       setIconSettings(result.data.iconSettings);
       setMusicFiles(result.data.musicFiles);
+      setDvdVideos(result.data.dvdVideos);
       return true;
     }
 
@@ -384,6 +415,7 @@ export const AdminProvider = ({ children }) => {
       setFolderContents(result.data.folderContents || DEFAULT_FOLDER_CONTENTS);
       setIconSettings(result.data.iconSettings || DEFAULT_ICON_SETTINGS);
       setMusicFiles(result.data.musicFiles || DEFAULT_MUSIC_FILES);
+      setDvdVideos(result.data.dvdVideos || DEFAULT_DVD_VIDEOS);
       return true;
     }
 
@@ -395,6 +427,7 @@ export const AdminProvider = ({ children }) => {
     folderContents,
     iconSettings,
     musicFiles,
+    dvdVideos,
     isAdminAuthenticated,
     isLoading,
     apiError,
@@ -403,6 +436,7 @@ export const AdminProvider = ({ children }) => {
     saveFolderContents,
     saveIconSettings,
     saveMusicFiles,
+    saveDvdVideos,
     addSong,
     updateSong,
     removeSong,

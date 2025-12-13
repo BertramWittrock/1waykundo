@@ -114,7 +114,8 @@
   "iconSettings": {
     "ticketLink": "https://tix.to/Kundopresale",
     "ticketImage": "/icons/home_icons/tickets.gif",
-    "ticketEnabled": false
+    "ticketEnabled": false,
+    "topIconLink": "https://www.flaticon.com/"
   },
   "adminPasswordHash": "d3ef081d2ecf42b42214aac630ada178d175dcc00409d4d216a30eea88fd07a5",
   "musicFiles": [

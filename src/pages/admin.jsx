@@ -8,6 +8,7 @@ const AdminDashboard = () => {
     folderContents,
     iconSettings,
     musicFiles,
+    dvdVideos,
     isAdminAuthenticated,
     isLoading,
     apiError,
@@ -22,6 +23,7 @@ const AdminDashboard = () => {
     addSong,
     removeSong,
     saveMusicFiles,
+    saveDvdVideos,
     resetToDefaults,
     refreshConfig,
   } = useAdmin();
@@ -43,6 +45,11 @@ const AdminDashboard = () => {
   const [ticketLink, setTicketLink] = useState("");
   const [ticketImage, setTicketImage] = useState("");
   const [ticketEnabled, setTicketEnabled] = useState(true);
+  const [topIconLink, setTopIconLink] = useState("");
+
+  // DVD Video form states
+  const [newDvdTitle, setNewDvdTitle] = useState("");
+  const [newDvdUrl, setNewDvdUrl] = useState("");
 
   // Song form states
   const [newSongTitle, setNewSongTitle] = useState("");
@@ -64,6 +71,7 @@ const AdminDashboard = () => {
       setTicketLink(iconSettings.ticketLink || "");
       setTicketImage(iconSettings.ticketImage || "");
       setTicketEnabled(iconSettings.ticketEnabled ?? true);
+      setTopIconLink(iconSettings.topIconLink || "");
     }
   }, [iconSettings]);
 
@@ -198,6 +206,7 @@ const AdminDashboard = () => {
       ticketLink: ticketLink.trim(),
       ticketImage: ticketImage.trim(),
       ticketEnabled,
+      topIconLink: topIconLink.trim(),
     });
     
     setSaving(false);
@@ -330,6 +339,75 @@ const AdminDashboard = () => {
 
     if (!success) {
       showNotification("Failed to reorder songs", "error");
+    }
+  };
+
+  // Handle add DVD video
+  const handleAddDvdVideo = async (event) => {
+    event.preventDefault();
+    if (!newDvdTitle.trim() || !newDvdUrl.trim()) {
+      showNotification("Please fill in title and R2 key", "error");
+      return;
+    }
+
+    // Construct full URL from R2 key
+    const r2Key = newDvdUrl.trim();
+    const fullUrl = `https://kundo-1way.bertramvwsteam.workers.dev?fileKey=${r2Key}`;
+
+    const newVideo = {
+      title: newDvdTitle.trim(),
+      url: fullUrl,
+    };
+
+    const newDvdVideos = [...(dvdVideos || []), newVideo];
+
+    setSaving(true);
+    const success = await saveDvdVideos(newDvdVideos);
+    setSaving(false);
+
+    if (success) {
+      setNewDvdTitle("");
+      setNewDvdUrl("");
+      showNotification(`DVD Video "${newVideo.title}" added successfully`);
+    } else {
+      showNotification("Failed to add DVD video", "error");
+    }
+  };
+
+  // Handle remove DVD video
+  const handleRemoveDvdVideo = async (index, videoTitle) => {
+    if (window.confirm(`Are you sure you want to delete "${videoTitle}"?`)) {
+      const newDvdVideos = [...dvdVideos];
+      newDvdVideos.splice(index, 1);
+
+      setSaving(true);
+      const success = await saveDvdVideos(newDvdVideos);
+      setSaving(false);
+
+      if (success) {
+        showNotification(`DVD Video "${videoTitle}" deleted`);
+      } else {
+        showNotification("Failed to delete DVD video", "error");
+      }
+    }
+  };
+
+  // Handle move DVD video
+  const handleMoveDvdVideo = async (index, direction) => {
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= dvdVideos.length) return;
+
+    const newDvdVideos = [...dvdVideos];
+    const temp = newDvdVideos[index];
+    newDvdVideos[index] = newDvdVideos[newIndex];
+    newDvdVideos[newIndex] = temp;
+
+    setSaving(true);
+    const success = await saveDvdVideos(newDvdVideos);
+    setSaving(false);
+
+    if (!success) {
+      showNotification("Failed to reorder DVD videos", "error");
     }
   };
 
@@ -480,6 +558,16 @@ const AdminDashboard = () => {
             }`}
           >
             💿 CD Songs
+          </button>
+          <button
+            onClick={() => setActiveTab("dvd")}
+            className={`px-6 py-3 transition-colors ${
+              activeTab === "dvd"
+                ? "text-[#00ff00] border-b-2 border-[#00ff00]"
+                : "text-[#00ff00]/50 hover:text-[#00ff00]"
+            }`}
+          >
+            📀 DVD Videos
           </button>
           <button
             onClick={() => setActiveTab("icon")}
@@ -796,88 +884,210 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Icon Settings Tab */}
-        {activeTab === "icon" && (
-          <div className="max-w-2xl">
+        {/* DVD Videos Tab */}
+        {activeTab === "dvd" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Add DVD Video Form */}
             <div className="bg-black/50 border border-[#00ff00]/30 rounded-lg p-6">
-              <h2 className="text-lg font-bold mb-6">Ticket Popup Settings</h2>
-              <p className="text-[#00ff00]/60 text-sm mb-6">
-                Configure the ticket popup that appears on the home screen. This is the popup that shows periodically with a link to tickets.
-              </p>
+              <h2 className="text-lg font-bold mb-4">Add New DVD Video</h2>
               
-              <form onSubmit={handleSaveIconSettings} className="space-y-6">
+              <form onSubmit={handleAddDvdVideo} className="space-y-4">
                 <div>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={ticketEnabled}
-                      onChange={(event) => setTicketEnabled(event.target.checked)}
-                      className="w-5 h-5 accent-[#00ff00]"
-                    />
-                    <span>Enable ticket popup</span>
-                  </label>
-                </div>
-
-                <div>
-                  <label className="block text-sm mb-2">Ticket Link URL</label>
-                  <input
-                    type="url"
-                    value={ticketLink}
-                    onChange={(event) => setTicketLink(event.target.value)}
-                    className="w-full px-4 py-3 bg-black border border-[#00ff00]/30 text-[#00ff00] placeholder-[#00ff00]/30 focus:outline-none rounded"
-                    placeholder="https://example.com/tickets"
-                  />
-                  <p className="text-[#00ff00]/40 text-xs mt-1">
-                    This is where users will be redirected when clicking the ticket popup
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm mb-2">Ticket Image Path</label>
+                  <label className="block text-sm mb-1">Title *</label>
                   <input
                     type="text"
-                    value={ticketImage}
-                    onChange={(event) => setTicketImage(event.target.value)}
-                    className="w-full px-4 py-3 bg-black border border-[#00ff00]/30 text-[#00ff00] placeholder-[#00ff00]/30 focus:outline-none rounded"
-                    placeholder="/icons/home_icons/tickets.gif"
+                    value={newDvdTitle}
+                    onChange={(event) => setNewDvdTitle(event.target.value)}
+                    className="w-full px-3 py-2 bg-black border border-[#00ff00]/30 text-[#00ff00] placeholder-[#00ff00]/30 focus:outline-none rounded"
+                    placeholder="Video title"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm mb-1">Video R2 Key *</label>
+                  <input
+                    type="text"
+                    value={newDvdUrl}
+                    onChange={(event) => setNewDvdUrl(event.target.value)}
+                    className="w-full px-3 py-2 bg-black border border-[#00ff00]/30 text-[#00ff00] placeholder-[#00ff00]/30 focus:outline-none rounded"
+                    placeholder="e.g., KundoContent/dvd/video.mp4"
                   />
                   <p className="text-[#00ff00]/40 text-xs mt-1">
-                    Path to the image shown in the ticket popup (relative to public folder)
+                    Enter the R2 key (path) for the video file
                   </p>
                 </div>
+                
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="w-full py-2 bg-[#00ff00]/20 hover:bg-[#00ff00]/30 border border-[#00ff00]/50 rounded transition-colors disabled:opacity-50"
+                >
+                  Add Video
+                </button>
+              </form>
+            </div>
 
-                {/* Preview */}
-                <div className="p-4 border border-[#00ff00]/20 rounded">
-                  <h3 className="text-sm font-bold mb-3">Preview</h3>
-                  <div className="flex items-center gap-4">
-                    {ticketImage && (
-                      <img 
-                        src={ticketImage} 
-                        alt="Ticket preview" 
-                        className="h-16 w-auto object-contain"
-                        onError={(event) => {
-                          event.target.style.display = 'none';
-                        }}
+            {/* DVD Videos List */}
+            <div className="bg-black/50 border border-[#00ff00]/30 rounded-lg p-6">
+              <h2 className="text-lg font-bold mb-4">
+                Current DVD Videos ({dvdVideos?.length || 0})
+              </h2>
+              
+              <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                {dvdVideos?.map((video, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 border border-[#00ff00]/20 rounded hover:border-[#00ff00]/40 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[#00ff00]/50 text-sm w-6">{index + 1}.</span>
+                        <span className="font-medium truncate">{video.title}</span>
+                      </div>
+                      <div className="text-[#00ff00]/30 text-xs truncate mt-1 ml-8">
+                        {video.url}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-1 ml-2">
+                      {/* Move Up */}
+                      <button
+                        onClick={() => handleMoveDvdVideo(index, "up")}
+                        disabled={index === 0 || saving}
+                        className="px-2 py-1 text-[#00ff00]/50 hover:text-[#00ff00] hover:bg-[#00ff00]/10 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Move up"
+                      >
+                        ↑
+                      </button>
+                      
+                      {/* Move Down */}
+                      <button
+                        onClick={() => handleMoveDvdVideo(index, "down")}
+                        disabled={index === (dvdVideos?.length || 0) - 1 || saving}
+                        className="px-2 py-1 text-[#00ff00]/50 hover:text-[#00ff00] hover:bg-[#00ff00]/10 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Move down"
+                      >
+                        ↓
+                      </button>
+                      
+                      {/* Delete */}
+                      <button
+                        onClick={() => handleRemoveDvdVideo(index, video.title)}
+                        disabled={saving}
+                        className="px-2 py-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors disabled:opacity-50"
+                        title="Delete"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                
+                {(!dvdVideos || dvdVideos.length === 0) && (
+                  <div className="text-[#00ff00]/50 text-center py-8">
+                    No videos added yet
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Icon Settings Tab */}
+        {activeTab === "icon" && (
+          <div className="bg-black/50 border border-[#00ff00]/30 rounded-lg p-6 max-w-2xl">
+            <h2 className="text-lg font-bold mb-4">Ticket Icon & Top Link Settings</h2>
+            
+            <form onSubmit={handleSaveIconSettings} className="space-y-6">
+              {/* Top Middle Icon Link */}
+              <div className="p-4 border border-[#00ff00]/20 rounded bg-[#00ff00]/5">
+                <h3 className="text-[#00ff00] font-bold mb-3">Top Middle Icon (1WAY)</h3>
+                <div>
+                  <label className="block text-sm mb-1">External Link</label>
+                  <input
+                    type="text"
+                    value={topIconLink}
+                    onChange={(event) => setTopIconLink(event.target.value)}
+                    className="w-full px-3 py-2 bg-black border border-[#00ff00]/30 text-[#00ff00] placeholder-[#00ff00]/30 focus:outline-none rounded"
+                    placeholder="https://example.com (Leave empty for no link)"
+                  />
+                  <p className="text-[#00ff00]/40 text-xs mt-1">
+                    When set, clicking the "1WAY" icon will open this link in a new tab.
+                  </p>
+                </div>
+              </div>
+
+              {/* Ticket Settings */}
+              <div className="p-4 border border-[#00ff00]/20 rounded">
+                <h3 className="text-[#00ff00] font-bold mb-3">Ticket Popup / Icon</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={ticketEnabled}
+                        onChange={(event) => setTicketEnabled(event.target.checked)}
+                        className="w-4 h-4 accent-[#00ff00] bg-black border-gray-300 rounded focus:ring-[#00ff00]"
                       />
-                    )}
-                    <div className="text-sm">
-                      <div>Status: {ticketEnabled ? "✓ Enabled" : "✗ Disabled"}</div>
-                      <div className="text-[#00ff00]/60 truncate max-w-md">
-                        Link: {ticketLink || "(not set)"}
+                      <span className="text-sm">Enable Automated Ticket Popup</span>
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm mb-2">Ticket Link URL</label>
+                    <input
+                      type="url"
+                      value={ticketLink}
+                      onChange={(event) => setTicketLink(event.target.value)}
+                      className="w-full px-4 py-3 bg-black border border-[#00ff00]/30 text-[#00ff00] placeholder-[#00ff00]/30 focus:outline-none rounded"
+                      placeholder="https://example.com/tickets"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm mb-2">Ticket Image Path</label>
+                    <input
+                      type="text"
+                      value={ticketImage}
+                      onChange={(event) => setTicketImage(event.target.value)}
+                      className="w-full px-4 py-3 bg-black border border-[#00ff00]/30 text-[#00ff00] placeholder-[#00ff00]/30 focus:outline-none rounded"
+                      placeholder="/icons/home_icons/tickets.gif"
+                    />
+                  </div>
+
+                  {/* Preview */}
+                  <div className="p-4 border border-[#00ff00]/20 rounded">
+                    <h3 className="text-sm font-bold mb-3">Preview</h3>
+                    <div className="flex items-center gap-4">
+                      {ticketImage && (
+                        <img 
+                          src={ticketImage} 
+                          alt="Ticket preview" 
+                          className="h-16 w-auto object-contain"
+                          onError={(event) => {
+                            event.target.style.display = 'none';
+                          }}
+                        />
+                      )}
+                      <div className="text-sm">
+                        <div>Status: {ticketEnabled ? "✓ Enabled" : "✗ Disabled"}</div>
+                        <div className="text-[#00ff00]/60 truncate max-w-md">
+                          Link: {ticketLink || "(not set)"}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="w-full py-3 bg-[#00ff00]/20 hover:bg-[#00ff00]/30 border border-[#00ff00]/50 rounded transition-colors disabled:opacity-50"
-                >
-                  {saving ? "Saving..." : "Save Settings"}
-                </button>
-              </form>
-            </div>
+              <button
+                type="submit"
+                disabled={saving}
+                className="w-full py-3 bg-[#00ff00]/20 hover:bg-[#00ff00]/30 border border-[#00ff00]/50 rounded transition-colors disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save Settings"}
+              </button>
+            </form>
           </div>
         )}
 
