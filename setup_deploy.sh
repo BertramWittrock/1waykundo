@@ -147,3 +147,4 @@ sudo systemctl restart nginx
 
 echo "Deployment Complete!"
 echo "Your app should be live on http://$(curl -s ifconfig.me) or your configured domain."
+
