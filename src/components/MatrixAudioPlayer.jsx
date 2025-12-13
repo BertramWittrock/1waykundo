@@ -118,7 +118,7 @@ const MatrixAudioPlayer = ({ title, onClose, audioUrl, zIndex, onBringToFront, i
         {/* Title Bar */}
         <div className="matrix-window-title-bar bg-gradient-to-r from-[#003300] via-[#00ff00]/20 to-[#003300] text-[#00ff00] p-2 flex justify-between items-center cursor-move border-b border-[#00ff00]/30">
           <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-[#00ff00] animate-pulse' : 'bg-[#00ff00]/40'}`} />
+            <div className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-[#ff0000] animate-pulse' : 'bg-[#00ff00]/40'}`} />
             <span className="font-mono text-xs sm:text-sm tracking-wide">{title || 'Audio Player'}</span>
           </div>
           <button
