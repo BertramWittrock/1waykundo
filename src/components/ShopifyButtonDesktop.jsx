@@ -1,9 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const ShopifyShop = () => {
   const shopifyComponentRef = useRef(null);
+  const shopifyClientRef = useRef(null);
+  const shopifyUIRef = useRef(null);
   const nodeIdRef = useRef(`product-component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
   const isInitializedRef = useRef(false);
+  const [shopifyButtonReady, setShopifyButtonReady] = useState(false);
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -27,11 +30,17 @@ const ShopifyShop = () => {
           storefrontAccessToken: 'bca649bb23a2714d686b28b56a7c4018',
         });
 
+        // Store client reference for adding to cart
+        shopifyClientRef.current = client;
+
         window.ShopifyBuy.UI.onReady(client).then(function (ui) {
           // Final check before creating component
           if (isInitializedRef.current) {
             return;
           }
+
+          // Store UI reference for cart operations
+          shopifyUIRef.current = ui;
 
           const node = document.getElementById(nodeId);
           
@@ -209,6 +218,11 @@ const ShopifyShop = () => {
           
           // Store component reference for cleanup
           shopifyComponentRef.current = component;
+          
+          // Wait a bit for the button to render, then mark as ready
+          setTimeout(() => {
+            setShopifyButtonReady(true);
+          }, 500);
         });
       }
     }
@@ -333,47 +347,204 @@ const ShopifyShop = () => {
       </div>
       
       {/* Shopify Buy Button */}
-      <div className="w-full min-h-[100px] flex justify-center relative overflow-visible">
+      <div className="w-full min-h-[100px] flex justify-center items-center relative overflow-visible">
+        {/* Hidden Shopify Button */}
         <div 
           id={nodeIdRef.current} 
-          className="shopify-button-wrapper relative z-10"
-          style={{
-            fontFamily: "'Courier Prime', 'Courier New', monospace"
-          }}
+          style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', zIndex: -1 }}
         >
           <style>{`
-            .shopify-button-wrapper {
-              background-color: transparent !important;
-              position: relative !important;
-              overflow: visible !important;
-              display: inline-block !important;
-            }
-            .shopify-button-wrapper::before {
-              display: none !important;
-            }
-            .shopify-button-wrapper iframe {
-              background-color: transparent !important;
-              border: 1px solid #00ff00 !important;
-              border-radius: 0px !important;
-              display: block !important;
-              position: relative !important;
-              z-index: 1 !important;
-            }
-            .shopify-button-wrapper button {
-              font-family: 'Courier Prime', 'Courier New', monospace !important;
-              font-weight: 700 !important;
-              text-transform: uppercase !important;
-              letter-spacing: 2px !important;
-            }
             #${nodeIdRef.current} {
-              background-color: transparent !important;
-              display: inline-block !important;
+              position: absolute !important;
+              opacity: 0 !important;
+              pointer-events: none !important;
+              z-index: -1 !important;
+              width: 0 !important;
+              height: 0 !important;
+              overflow: hidden !important;
             }
-            #${nodeIdRef.current} > * {
-              background-color: transparent !important;
+            #${nodeIdRef.current} iframe {
+              display: none !important;
             }
           `}</style>
         </div>
+        
+        {/* Custom Button */}
+        <style>{`
+          .custom-shopify-button {
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+            padding-left: 40px !important;
+            padding-right: 40px !important;
+            height: auto !important;
+            min-height: unset !important;
+            line-height: 1.4 !important;
+          }
+        `}</style>
+        <button
+          className="custom-shopify-button"
+          onClick={async () => {
+            if (shopifyButtonReady && shopifyClientRef.current) {
+              try {
+                // Function to find and click cart toggle
+                const openCart = () => {
+                  // Try multiple selectors and methods
+                  const selectors = [
+                    '.shopify-buy__cart-toggle',
+                    '[data-shopify-buy-toggle]',
+                    '.shopify-buy__btn--cart-toggle',
+                    '[aria-label*="cart" i]',
+                    '[aria-label*="Cart" i]',
+                    'button[class*="cart"]',
+                    '[class*="cart-toggle"]',
+                    '[id*="cart-toggle"]',
+                    '[id*="cartToggle"]'
+                  ];
+                  
+                  // Search in main document
+                  for (const selector of selectors) {
+                    const element = document.querySelector(selector);
+                    if (element && element.offsetParent !== null) { // Check if visible
+                      element.click();
+                      return true;
+                    }
+                  }
+                  
+                  // Search in all iframes
+                  const iframes = document.querySelectorAll('iframe');
+                  for (const iframe of iframes) {
+                    try {
+                      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                      for (const selector of selectors) {
+                        const element = iframeDoc?.querySelector(selector);
+                        if (element && element.offsetParent !== null) {
+                          element.click();
+                          return true;
+                        }
+                      }
+                    } catch {
+                      // Cross-origin, try postMessage
+                      iframe.contentWindow?.postMessage({ type: 'shopify-buy-cart-toggle', action: 'open' }, '*');
+                    }
+                  }
+                  
+                  return false;
+                };
+                
+                // Try to find and click the Shopify button first
+                const shopifyButton = document.querySelector(`#${nodeIdRef.current} .shopify-buy__btn, #${nodeIdRef.current} .shopify-buy__btn-wrapper button, #${nodeIdRef.current} button`);
+                if (shopifyButton) {
+                  // Create a more realistic click event
+                  const clickEvent = new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                  });
+                  shopifyButton.dispatchEvent(clickEvent);
+                  
+                  // Also try regular click
+                  shopifyButton.click();
+                  
+                  // Try to open cart multiple times with increasing delays
+                  const tryOpenCart = (attempt = 0) => {
+                    if (attempt < 5) {
+                      setTimeout(() => {
+                        if (!openCart()) {
+                          tryOpenCart(attempt + 1);
+                        }
+                      }, 200 + (attempt * 100));
+                    }
+                  };
+                  
+                  tryOpenCart();
+                  return;
+                }
+
+                // If button not found, try accessing iframe
+                const iframe = document.querySelector(`#${nodeIdRef.current} iframe`);
+                if (iframe) {
+                  // Post message to iframe to trigger button click
+                  iframe.contentWindow?.postMessage({ type: 'shopify-buy-button-click' }, '*');
+                  
+                  // Also try direct click if accessible
+                  try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                    const iframeButton = iframeDoc?.querySelector('.shopify-buy__btn, button');
+                    if (iframeButton) {
+                      iframeButton.click();
+                      
+                      // Try to open cart
+                      const tryOpenCart = (attempt = 0) => {
+                        if (attempt < 5) {
+                          setTimeout(() => {
+                            if (!openCart()) {
+                              tryOpenCart(attempt + 1);
+                            }
+                          }, 200 + (attempt * 100));
+                        }
+                      };
+                      
+                      tryOpenCart();
+                    }
+                  } catch {
+                    // Cross-origin restriction, use postMessage
+                    console.log('Using postMessage to trigger button');
+                    
+                    // Try to open cart anyway
+                    setTimeout(() => {
+                      openCart();
+                    }, 500);
+                  }
+                }
+              } catch (error) {
+                console.error('Error triggering Shopify button:', error);
+              }
+            }
+          }}
+          style={{
+            fontFamily: "'Courier Prime', 'Courier New', monospace",
+            borderRadius: '0px',
+            WebkitAppearance: 'none',
+            boxShadow: '0 0 10px rgba(0, 255, 0, 0.5)',
+            fontWeight: '700',
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+            paddingTop: '8px',
+            paddingBottom: '8px',
+            paddingLeft: '40px',
+            paddingRight: '40px',
+            height: 'auto',
+            minHeight: 'unset',
+            lineHeight: '1.4',
+            backgroundColor: '#000000',
+            color: '#00ff00',
+            border: '1px solid #00ff00',
+            outline: 'none',
+            cursor: 'pointer',
+            fontSize: '14px',
+            display: 'inline-block'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = '#00ff00';
+            e.target.style.color = '#000000';
+            e.target.style.borderColor = '#00ff00';
+            e.target.style.boxShadow = '0 0 10px rgba(0, 255, 0, 0.5)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = '#000000';
+            e.target.style.color = '#00ff00';
+            e.target.style.borderColor = '#00ff00';
+            e.target.style.boxShadow = '0 0 10px rgba(0, 255, 0, 0.5)';
+          }}
+          onFocus={(e) => {
+            e.target.style.backgroundColor = '#00ff00';
+            e.target.style.color = '#000000';
+            e.target.style.borderColor = '#00ff00';
+            e.target.style.boxShadow = '0 0 15px rgba(0, 255, 0, 0.7)';
+          }}
+        >
+          Add to cart
+        </button>
       </div>
     </div>
   );
