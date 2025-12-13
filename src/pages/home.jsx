@@ -146,6 +146,10 @@ export default function Home() {
 
     if (iconId === "folder") {
       addWindow({ type: "folder", title: "System Explorer" });
+    } else if (iconId === "1way") {
+      if (iconSettings?.topIconLink) {
+        window.open(iconSettings.topIconLink, "_blank");
+      }
     } else if (iconId === "pingpong") {
       addWindow({ type: "game", title: "Matrix Pong" });
     } else if (iconId === "dvd") {
