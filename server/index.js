@@ -70,7 +70,15 @@ const DEFAULT_CONFIG = {
     ticketLink: "https://tix.to/Kundopresale",
     ticketImage: "/icons/home_icons/tickets.gif",
     ticketEnabled: true,
+    topIconLink: "",
   },
+  dvdVideos: [
+    { title: "KUNDO FINAL", url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/dvd/KUNDO_FINAL_COMPRESSED_H264.mp4" },
+    { title: "FLOW MASTER 16:9", url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/dvd/220512_FLOW_MASTER_16-9.mp4" },
+    { title: "Frihed Feed Post", url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/dvd/Frihed Feed Post.mp4" },
+    { title: "MIN PROMO", url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/min_promo2.mp4" },
+    { title: "NorthFace", url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/northface2.mp4" },
+  ],
   musicFiles: [
     { id: 1, title: "1WAY (Intro)", artist: "Kundo", duration: "0:32", url: "/music/24/1WAY (Intro).mp3", coverR2Key: "KundoContent/24.jpg" },
     { id: 2, title: "Tomrum", artist: "Kundo", duration: "2:36", url: "/music/24/Tomrum.mp3", coverR2Key: "KundoContent/24.jpg" },
@@ -168,6 +176,7 @@ app.get('/api/config', (request, response) => {
     folderContents: config.folderContents,
     iconSettings: config.iconSettings,
     musicFiles: config.musicFiles,
+    dvdVideos: config.dvdVideos,
   });
 });
 
@@ -216,6 +225,7 @@ app.get('/api/admin/config', authMiddleware, (request, response) => {
     folderContents: config.folderContents,
     iconSettings: config.iconSettings,
     musicFiles: config.musicFiles,
+    dvdVideos: config.dvdVideos,
   });
 });
 
@@ -273,6 +283,24 @@ app.put('/api/admin/music-files', authMiddleware, (request, response) => {
   }
 });
 
+// Update DVD videos
+app.put('/api/admin/dvd-videos', authMiddleware, (request, response) => {
+  const { dvdVideos } = request.body;
+  
+  if (!dvdVideos || !Array.isArray(dvdVideos)) {
+    return response.status(400).json({ error: 'Invalid DVD videos list' });
+  }
+  
+  const config = loadConfig();
+  config.dvdVideos = dvdVideos;
+  
+  if (saveConfig(config)) {
+    response.json({ message: 'DVD videos updated', dvdVideos });
+  } else {
+    response.status(500).json({ error: 'Failed to save config' });
+  }
+});
+
 // Change admin password
 app.put('/api/admin/password', authMiddleware, (request, response) => {
   const { currentPassword, newPassword } = request.body;
@@ -315,6 +343,7 @@ app.post('/api/admin/reset', authMiddleware, (request, response) => {
       folderContents: resetConfig.folderContents,
       iconSettings: resetConfig.iconSettings,
       musicFiles: resetConfig.musicFiles,
+      dvdVideos: resetConfig.dvdVideos,
     });
   } else {
     response.status(500).json({ error: 'Failed to reset config' });

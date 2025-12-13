@@ -29,29 +29,7 @@ const DESKTOP_ICONS = [
 
 // FOLDER_CONTENTS is now managed via AdminContext
 
-// Sample video list - you should replace these with your actual videos
-const VIDEO_LIST = [
-  {
-    title: "KUNDO FINAL",
-    url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/dvd/KUNDO_FINAL_COMPRESSED_H264.mp4",
-  },
-  {
-    title: "FLOW MASTER 16:9",
-    url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/dvd/220512_FLOW_MASTER_16-9.mp4",
-  },
-  {
-    title: "Frihed Feed Post",
-    url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/dvd/Frihed Feed Post.mp4",
-  },
-  {
-    title: "MIN PROMO",
-    url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/min_promo2.mp4",
-  },
-  {
-    title: "NorthFace",
-    url: "https://kundo-1way.bertramvwsteam.workers.dev?fileKey=KundoContent/northface2.mp4",
-  },
-];
+// Sample video list removed - using AdminContext
 
 const BASE_Z_INDEX = 10;
 
@@ -67,8 +45,8 @@ export default function Home() {
   const { signOut } = useClerk();
   const { user, isLoaded, isSignedIn } = useUser();
   
-  // Get folder contents, icon settings, and music files from AdminContext
-  const { folderContents, iconSettings, musicFiles } = useAdmin();
+  // Get folder contents, icon settings, music files, and dvd videos from AdminContext
+  const { folderContents, iconSettings, musicFiles, dvdVideos } = useAdmin();
 
   const [zIndices, setZIndices] = useState({});
   const [nextZCounter, setNextZCounter] = useState(BASE_Z_INDEX);
@@ -416,7 +394,7 @@ export default function Home() {
               <SlimVideoFolder
                 key={win.id}
                 {...commonProps}
-                videoList={VIDEO_LIST}
+                videoList={dvdVideos || []}
                 onVideoSelect={(video) => handlePlayVideo(video.url, video.title)}
               />
             );
